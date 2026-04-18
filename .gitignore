@@ -1,0 +1,62 @@
+# Secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+aws-credentials
+.aws/
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/
+mvnw
+mvnw.cmd
+hs_err_pid*
+replay_pid*
+
+# Node / Frontend
+node_modules/
+dist/
+dist-ssr/
+.vite/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# SAM / AWS
+.aws-sam/
+samconfig.toml
+packaged.yaml
+
+# IDE
+.idea/
+.vscode/
+.metals/
+.bloop/
+.bsp/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Build artifacts
+build/
+out/
+bin/
