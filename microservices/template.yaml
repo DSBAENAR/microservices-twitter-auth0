@@ -15,6 +15,12 @@ Parameters:
     Type: String
     Description: Frontend origin allowed by CORS
     Default: http://localhost:5173
+  LambdaExecutionRoleArn:
+    Type: String
+    Description: |
+      Pre-existing IAM role ARN used by all Lambda functions. In AWS Academy
+      Learner Lab this must be 'arn:aws:iam::<ACCOUNT_ID>:role/LabRole' since
+      the sandbox forbids creating new IAM roles.
 
 Globals:
   Function:
@@ -63,7 +69,7 @@ Resources:
       CorsConfiguration:
         AllowOrigins: [!Ref CorsAllowedOrigin]
         AllowHeaders: [Authorization, Content-Type]
-        AllowMethods: [GET, POST, OPTIONS]
+        AllowMethods: [GET, POST, PATCH, OPTIONS]
       Auth:
         Authorizers:
           Auth0JwtAuthorizer:
@@ -78,9 +84,7 @@ Resources:
     Properties:
       CodeUri: users-service/
       Handler: index.handler
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UsersTable
+      Role: !Ref LambdaExecutionRoleArn
       Events:
         GetMe:
           Type: HttpApi
@@ -90,17 +94,21 @@ Resources:
             Path: /api/me
             Auth:
               Authorizer: Auth0JwtAuthorizer
+        PatchMe:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TwitterHttpApi
+            Method: PATCH
+            Path: /api/me
+            Auth:
+              Authorizer: Auth0JwtAuthorizer
 
   PostsFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: posts-service/
       Handler: index.handler
-      Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref PostsTable
-        - DynamoDBCrudPolicy:
-            TableName: !Ref UsersTable
+      Role: !Ref LambdaExecutionRoleArn
       Events:
         CreatePost:
           Type: HttpApi
@@ -116,9 +124,7 @@ Resources:
     Properties:
       CodeUri: stream-service/
       Handler: index.handler
-      Policies:
-        - DynamoDBReadPolicy:
-            TableName: !Ref PostsTable
+      Role: !Ref LambdaExecutionRoleArn
       Events:
         GetStream:
           Type: HttpApi
