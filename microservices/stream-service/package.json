@@ -1,0 +1,11 @@
+{
+  "name": "stream-service",
+  "version": "0.1.0",
+  "description": "Stream/Feed service Lambda — public GET /api/stream and GET /api/posts",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.658.0",
+    "@aws-sdk/lib-dynamodb": "^3.658.0"
+  }
+}

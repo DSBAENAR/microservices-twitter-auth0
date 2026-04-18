@@ -1,0 +1,12 @@
+# Copy to samconfig.toml (gitignored) and fill with your values.
+# Then run:  sam build && sam deploy
+
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "twitter-microservices"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+resolve_s3 = true
+parameter_overrides = "Auth0Domain=\"YOUR-TENANT.us.auth0.com\" Auth0Audience=\"https://twitter-api.YOUR-DOMAIN\" CorsAllowedOrigin=\"http://localhost:5173\""

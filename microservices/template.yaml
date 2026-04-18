@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: |
+  Twitter-like microservices on AWS Lambda + API Gateway (HTTP API) with Auth0 JWT authorizer.
+  Three independent services: users, posts, stream.
+
+Parameters:
+  Auth0Domain:
+    Type: String
+    Description: Auth0 tenant domain, e.g. YOUR-TENANT.us.auth0.com
+  Auth0Audience:
+    Type: String
+    Description: Auth0 API identifier (audience), e.g. https://twitter-api.example.com
+  CorsAllowedOrigin:
+    Type: String
+    Description: Frontend origin allowed by CORS
+    Default: http://localhost:5173
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Architectures: [arm64]
+    Timeout: 10
+    MemorySize: 256
+    Environment:
+      Variables:
+        POSTS_TABLE: !Ref PostsTable
+        USERS_TABLE: !Ref UsersTable
+        AUTH0_DOMAIN: !Ref Auth0Domain
+        AUTH0_AUDIENCE: !Ref Auth0Audience
+
+Resources:
+
+  PostsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+        - AttributeName: sk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+        - AttributeName: sk
+          KeyType: RANGE
+
+  UsersTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: auth0Subject
+          AttributeType: S
+      KeySchema:
+        - AttributeName: auth0Subject
+          KeyType: HASH
+
+  TwitterHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins: [!Ref CorsAllowedOrigin]
+        AllowHeaders: [Authorization, Content-Type]
+        AllowMethods: [GET, POST, OPTIONS]
+      Auth:
+        Authorizers:
+          Auth0JwtAuthorizer:
+            IdentitySource: $request.header.Authorization
+            JwtConfiguration:
+              issuer: !Sub 'https://${Auth0Domain}/'
+              audience:
+                - !Ref Auth0Audience
+
+  UsersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: users-service/
+      Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        GetMe:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TwitterHttpApi
+            Method: GET
+            Path: /api/me
+            Auth:
+              Authorizer: Auth0JwtAuthorizer
+
+  PostsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: posts-service/
+      Handler: index.handler
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PostsTable
+        - DynamoDBCrudPolicy:
+            TableName: !Ref UsersTable
+      Events:
+        CreatePost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TwitterHttpApi
+            Method: POST
+            Path: /api/posts
+            Auth:
+              Authorizer: Auth0JwtAuthorizer
+
+  StreamFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: stream-service/
+      Handler: index.handler
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref PostsTable
+      Events:
+        GetStream:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TwitterHttpApi
+            Method: GET
+            Path: /api/stream
+        ListPosts:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref TwitterHttpApi
+            Method: GET
+            Path: /api/posts
+
+Outputs:
+  ApiUrl:
+    Description: Invoke URL of the HTTP API
+    Value: !Sub 'https://${TwitterHttpApi}.execute-api.${AWS::Region}.amazonaws.com'
+  PostsTableName:
+    Value: !Ref PostsTable
+  UsersTableName:
+    Value: !Ref UsersTable

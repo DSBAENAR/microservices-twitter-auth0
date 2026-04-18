@@ -1,0 +1,11 @@
+{
+  "name": "users-service",
+  "version": "0.1.0",
+  "description": "User service Lambda — serves GET /api/me using Auth0 JWT claims",
+  "main": "index.js",
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.658.0",
+    "@aws-sdk/lib-dynamodb": "^3.658.0"
+  }
+}
