@@ -33,6 +33,9 @@ public class User {
     private String pictureUrl;
 
     @Column(nullable = false)
+    private boolean onboarded;
+
+    @Column(nullable = false)
     private Instant createdAt;
 
     @PrePersist
