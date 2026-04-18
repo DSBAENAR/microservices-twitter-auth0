@@ -60,3 +60,5 @@ logs/
 build/
 out/
 bin/
+
+.claude/
