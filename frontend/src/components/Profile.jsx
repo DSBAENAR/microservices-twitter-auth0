@@ -1,36 +1,43 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import { useEffect, useState } from 'react';
-import { api } from '../api/client.js';
+import { useState } from 'react';
+import { User as UserIcon } from 'lucide-react';
 
-export default function Profile() {
-  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const [me, setMe] = useState(null);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    (async () => {
-      try {
-        const token = await getAccessTokenSilently();
-        const data = await api.getMe(token);
-        setMe(data);
-      } catch (e) {
-        setError(e.message);
-      }
-    })();
-  }, [isAuthenticated, getAccessTokenSilently]);
-
-  if (error) return <div className="card error">Profile error: {error}</div>;
+export default function Profile({ me }) {
+  const { user: auth0User } = useAuth0();
   if (!me) return null;
+  const displayName = me.username;
+  const email = me.email || auth0User?.email;
+  const picture = me.pictureUrl || auth0User?.picture;
 
   return (
     <div className="card profile">
-      <img src={me.pictureUrl} alt="" className="avatar" onError={(e) => (e.target.style.display = 'none')} />
-      <div>
-        <strong>{me.username}</strong>
-        <small>{me.email}</small>
-        <small className="muted">sub: {me.auth0Subject}</small>
+      <Avatar src={picture} name={displayName} />
+      <div className="profile-info">
+        <strong className="profile-name">@{displayName}</strong>
+        {email && <span className="muted">{email}</span>}
       </div>
     </div>
   );
 }
+
+function Avatar({ src, name, size = 44 }) {
+  const [broken, setBroken] = useState(!src);
+  if (broken) {
+    return (
+      <span className="avatar placeholder" style={{ width: size, height: size }} aria-hidden="true">
+        <UserIcon size={size * 0.55} strokeWidth={2} />
+      </span>
+    );
+  }
+  return (
+    <img
+      src={src}
+      alt={name ? `${name}'s avatar` : ''}
+      className="avatar"
+      style={{ width: size, height: size }}
+      onError={() => setBroken(true)}
+    />
+  );
+}
+
+export { Avatar };

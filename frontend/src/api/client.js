@@ -25,4 +25,6 @@ export const api = {
   getPosts: (page = 0, size = 20) => request(`/api/posts?page=${page}&size=${size}`),
   createPost: (content, token) => request('/api/posts', { method: 'POST', body: { content }, token }),
   getMe: (token) => request('/api/me', { token }),
+  updateUsername: (username, token) =>
+    request('/api/me', { method: 'PATCH', body: { username }, token }),
 };
