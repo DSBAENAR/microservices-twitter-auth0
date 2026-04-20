@@ -35,6 +35,9 @@ function Avatar({ src, name, size = 44 }) {
       alt={name ? `${name}'s avatar` : ''}
       className="avatar"
       style={{ width: size, height: size }}
+      referrerPolicy="no-referrer"
+      loading="lazy"
+      decoding="async"
       onError={() => setBroken(true)}
     />
   );

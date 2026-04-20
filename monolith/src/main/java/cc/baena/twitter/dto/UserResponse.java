@@ -12,6 +12,7 @@ public record UserResponse(
         String username,
         String email,
         String pictureUrl,
+        boolean onboarded,
         Instant createdAt
 ) {
     public static UserResponse from(User user) {
@@ -21,6 +22,7 @@ public record UserResponse(
                 user.getUsername(),
                 user.getEmail(),
                 user.getPictureUrl(),
+                user.isOnboarded(),
                 user.getCreatedAt()
         );
     }
