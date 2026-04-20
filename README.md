@@ -411,6 +411,10 @@ Screenshots captured during the final end-to-end run against the deployed stack.
 
 ## Video demo
 
+[Download the monolith demo video](https://github.com/DSBAENAR/microservices-twitter-auth0/raw/main/monolito.mov)
+
+<video src="https://github.com/DSBAENAR/microservices-twitter-auth0/raw/main/monolito.mov" controls width="720"></video>
+
 Target length: 5–8 min.
 
 1. Repo + README tour; explain the refactor goal.
@@ -437,6 +441,6 @@ Target length: 5–8 min.
 
 ## Team
 
-— [@DSBAENAR](https://github.com/DSBAENAR)
+—David Salomón Baena Rubio [@DSBAENAR](https://github.com/DSBAENAR)
 
 Escuela Colombiana de Ingeniería Julio Garavito · AREM · 2026-1.
